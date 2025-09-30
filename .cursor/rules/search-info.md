@@ -1,0 +1,8 @@
+AI & Search
+Whether building RAG enabled chatbots or quick search in your applications, Convex provides easy apis to create powerful AI and search enabled products.
+
+Vector Search enables searching for documents based on their semantic meaning. It uses vector embeddings to calculate similarity and retrieve documents that are similar to a given query. Vector search is a key part of common AI techniques like RAG.
+
+Full Text Search enables keyword and phrase search within your documents. It supports prefix matching to enable typeahead search. Convex full text search is also reactive and always up to date like all Convex queries, making it easy to build reliable quick search boxes.
+
+Convex Actions easily enable you to call AI apis, save data to your database, and drive your user interface. See examples of how you can use this to build sophisticated AI applications.
