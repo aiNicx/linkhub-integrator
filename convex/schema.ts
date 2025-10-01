@@ -7,6 +7,7 @@ export default defineSchema({
     auth0UserId: v.string(),              // Subject JWT Auth0
     companyId: v.string(),                // Company ID da LinkHub principale
     companySlug: v.string(),              // Per query ottimizzate
+    companyName: v.string(),              // Nome della company per display
     isActive: v.boolean(),
     lastLoginAt: v.optional(v.number()),
     createdAt: v.number(),
@@ -14,7 +15,8 @@ export default defineSchema({
   })
     .index("by_auth0_user", ["auth0UserId"])
     .index("by_company", ["companyId"])
-    .index("by_company_slug", ["companySlug"]),
+    .index("by_company_slug", ["companySlug"])
+    .index("by_company_name", ["companyName"]),
 
   // Configurazioni provider (HubSpot, PowerBI, etc.)
   providerConfigs: defineTable({
