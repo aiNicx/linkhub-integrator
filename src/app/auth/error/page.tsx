@@ -15,7 +15,7 @@ export default function AuthErrorPage({ searchParams }: ErrorPageProps) {
       case "Configuration":
         return "Errore di configurazione del server di autenticazione."
       case "AccessDenied":
-        return "Accesso negato. Non hai i permessi necessari."
+        return "Accesso negato. Il tuo account non è abilitato come Integrator oppure il signup è disabilitato per questa applicazione. Contatta l'amministratore LinkHub."
       case "Verification":
         return "Errore di verifica del token."
       case "Default":

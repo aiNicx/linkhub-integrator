@@ -26,6 +26,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         params: {
           audience: "https://linkhub-api", // API Auth0 condivisa
           scope: "openid profile email read:profile read:user read:company",
+          // Forza la schermata di login e scoraggia il signup
+          prompt: "login",
         },
       },
     }),
@@ -49,32 +51,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async signIn({ user, account, profile }) {
       try {
-        // Se è un login Auth0, crea automaticamente il profilo integrator
+        // Consenti solo login con Auth0 e solo per utenti già abilitati come Integrator
         if (account?.provider === "auth0") {
-          console.log("Auth0 sign in - User:", user.email)
-          console.log("Auth0 sign in - Profile:", profile?.sub)
+          const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
+          const auth0UserId = (profile?.sub || user.id) as string
 
-          // Crea automaticamente il profilo integrator
           try {
-            const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
-
-            await convex.action(api.auth.ensureProfileExistsAction, {
-              auth0UserId: (profile?.sub || user.id) as string,
-              userEmail: user.email!,
-              userName: user.name || undefined,
-              accessToken: account.access_token || "",
+            const existing = await convex.query(api.auth.getProfileByAuth0UserId, {
+              auth0UserId,
             })
 
-            console.log("Profilo integrator creato/aggiornato per:", user.email)
-          } catch (convexError) {
-            console.error("Errore creazione profilo Convex:", convexError)
-            // Non bloccare il login se c'è un errore nella creazione del profilo
+            if (!existing) {
+              // Nessun profilo Integrator: neghiamo l'accesso (no signup, no autocreazione)
+              return false
+            }
+          } catch (e) {
+            // In caso di errore nel check, per sicurezza blocchiamo l'accesso
+            console.error("Errore verifica profilo Integrator:", e)
+            return false
           }
 
           return true
         }
 
-        return true
+        return false
       } catch (error) {
         console.error("Errore durante sign in:", error)
         return false
