@@ -31,11 +31,11 @@ export function DashboardContent() {
   if (!session?.user) return null;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background">
       <AppSidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="ml-64 flex flex-col min-h-screen">
         <AppHeader title="LinkHub Integrator" subtitle="Gestisci le integrazioni con i tuoi software enterprise" />
 
         {/* Main Content Area */}
@@ -72,7 +72,7 @@ export function DashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full">
-                    <a href="/docs" className="flex items-center justify-center">
+                    <a href="/api-docs" className="flex items-center justify-center">
                       Visualizza Documentazione
                       <ExternalLink className="w-4 h-4 ml-2" />
                     </a>

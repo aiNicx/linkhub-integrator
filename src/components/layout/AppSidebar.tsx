@@ -1,8 +1,9 @@
 "use client"
 
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { 
-  Home, 
+  LayoutDashboard, 
   FileText, 
   Database, 
   BarChart3, 
@@ -12,8 +13,13 @@ import {
 } from "lucide-react"
 
 export function AppSidebar() {
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const isActive = (path: string) => pathname === path
+
   return (
-    <aside className="w-64 bg-[hsl(221,83%,53%)] text-white flex flex-col">
+    <aside className="w-64 bg-[hsl(221,83%,53%)] text-white flex flex-col fixed left-0 top-0 h-screen z-40">
       <div className="p-6">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
@@ -29,16 +35,26 @@ export function AppSidebar() {
       <nav className="flex-1 px-4 pb-4">
         <div className="space-y-2">
           <Button 
-            variant="ghost" 
-            className="w-full justify-start text-white hover:bg-white/10 h-10"
+            variant={isActive('/dashboard') ? 'secondary' : 'ghost'}
+            className={`w-full justify-start h-10 ${
+              isActive('/dashboard') 
+                ? 'bg-white/20 text-white' 
+                : 'text-white hover:bg-white/10'
+            }`}
+            onClick={() => router.push('/dashboard')}
           >
-            <Home className="w-4 h-4 mr-3" />
-            Home
+            <LayoutDashboard className="w-4 h-4 mr-3" />
+            Dashboard
           </Button>
           
           <Button 
-            variant="ghost" 
-            className="w-full justify-start text-white hover:bg-white/10 h-10"
+            variant={isActive('/api-docs') ? 'secondary' : 'ghost'}
+            className={`w-full justify-start h-10 ${
+              isActive('/api-docs') 
+                ? 'bg-white/20 text-white' 
+                : 'text-white hover:bg-white/10'
+            }`}
+            onClick={() => router.push('/api-docs')}
           >
             <FileText className="w-4 h-4 mr-3" />
             API Documentation
