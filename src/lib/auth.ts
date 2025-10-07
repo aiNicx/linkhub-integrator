@@ -7,12 +7,26 @@ declare module "next-auth" {
   interface Session {
     accessToken?: string
     provider?: string
+    user: {
+      id?: string
+      name?: string | null
+      email?: string | null
+      image?: string | null
+    }
+  }
+
+  interface User {
+    id?: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
   }
 
   interface JWT {
     accessToken?: string
     provider?: string
     sub?: string
+    auth0UserId?: string
   }
 }
 
@@ -33,12 +47,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, profile }) {
       // Preserva il JWT originale di Auth0 per compatibilità con LinkHub
       if (account?.access_token) {
         token.accessToken = account.access_token
         token.provider = account.provider
       }
+      
+      // Imposta auth0UserId SOLO durante il login iniziale (quando account è presente)
+      // Dopo di che, il valore viene preservato automaticamente nel token
+      if (account && profile?.sub) {
+        token.auth0UserId = profile.sub
+      }
+      
       return token
     },
     async session({ session, token }) {
@@ -46,6 +67,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.accessToken) {
         session.accessToken = token.accessToken as string
         session.provider = token.provider as string
+      }
+      // Usa auth0UserId salvato dal profilo, non token.sub
+      if (token.auth0UserId) {
+        session.user.id = token.auth0UserId as string
       }
       return session
     },

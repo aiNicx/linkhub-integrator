@@ -199,6 +199,8 @@ export const getCompanyProfiles = query({
   },
 });
 
+// (no debug queries)
+
 // Ottieni companies disponibili per un utente da LinkHub
 export const getUserCompanies = query({
   args: { accessToken: v.string() },

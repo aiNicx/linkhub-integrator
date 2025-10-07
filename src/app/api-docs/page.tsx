@@ -7,14 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { apiReference, ApiEndpoint, ApiParameter } from "@/data/apiReference";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Copy, 
-  ExternalLink, 
-  Code2, 
-  Eye,
-  EyeOff
+import {
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  ExternalLink,
+  Code2
 } from "lucide-react";
 
 function CodeBlock({ code, language = "json" }: { code: unknown; language?: string }) {
@@ -80,28 +78,11 @@ function CollapsibleSection({
 }
 
 export default function ApiDocsPage() {
-  const [showAllSections, setShowAllSections] = useState(false);
-
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar />
       <div className="ml-64 flex flex-col min-h-screen">
         <AppHeader title="API Reference" subtitle={`Versione ${apiReference.version}`} />
-        
-        {/* Controls */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30">
-          <div className="flex items-center justify-end px-6 py-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAllSections(!showAllSections)}
-              className="h-8"
-            >
-              {showAllSections ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-              {showAllSections ? 'Nascondi tutto' : 'Mostra tutto'}
-            </Button>
-          </div>
-        </div>
 
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto space-y-8">
@@ -114,7 +95,7 @@ export default function ApiDocsPage() {
               <p className="text-muted-foreground text-lg">
                 {apiReference.auth.description}
               </p>
-              <CollapsibleSection title="Autenticazione" defaultOpen={true}>
+              <CollapsibleSection title="Autenticazione" defaultOpen={false}>
                 <CodeBlock code={apiReference.auth.header} language="bash" />
               </CollapsibleSection>
             </section>
@@ -178,7 +159,7 @@ export default function ApiDocsPage() {
                       <CardContent className="space-y-4">
                         {/* Headers */}
                         {ep.headers && Array.isArray(ep.headers) && ep.headers.length > 0 ? (
-                          <CollapsibleSection title="Headers" defaultOpen={showAllSections}>
+                          <CollapsibleSection title="Headers" defaultOpen={false}>
                             <CodeBlock
                               code={Object.fromEntries(
                                 (ep.headers as ApiParameter[]).map((h) => [h.name, String(h.example ?? "")])
@@ -190,14 +171,14 @@ export default function ApiDocsPage() {
 
                         {/* Request Body */}
                         {ep.requestBodyExample ? (
-                          <CollapsibleSection title="Request Body" defaultOpen={showAllSections}>
+                          <CollapsibleSection title="Request Body" defaultOpen={false}>
                             <CodeBlock code={ep.requestBodyExample} language="json" />
                           </CollapsibleSection>
                         ) : null}
 
                         {/* Responses */}
                         {ep.responses && ep.responses.length > 0 ? (
-                          <CollapsibleSection title="Esempi di Risposta" defaultOpen={showAllSections}>
+                          <CollapsibleSection title="Esempi di Risposta" defaultOpen={false}>
                             <div className="space-y-4">
                               {ep.responses.map((r) => (
                                 <div key={r.status} className="space-y-2">

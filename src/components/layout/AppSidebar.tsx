@@ -1,22 +1,28 @@
 "use client"
 
 import { useRouter, usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { useQuery } from "convex/react"
+import { api } from "../../../convex/_generated/api"
 import { Button } from "@/components/ui/button"
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Database, 
-  BarChart3, 
-  CheckSquare, 
-  ChevronDown, 
-  Zap 
+import {
+  LayoutDashboard,
+  FileText,
+  Zap
 } from "lucide-react"
 
 export function AppSidebar() {
   const router = useRouter()
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   const isActive = (path: string) => pathname === path
+
+  // Recupera il profilo integrator dell'utente autenticato
+  const profile = useQuery(
+    api.auth.getProfileByAuth0UserId,
+    session?.user?.id ? { auth0UserId: session.user.id } : "skip"
+  )
 
   return (
     <aside className="w-64 bg-[hsl(221,83%,53%)] text-white flex flex-col fixed left-0 top-0 h-screen z-40">
@@ -32,7 +38,7 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 px-4 pb-4">
+      <nav className="flex-1 px-4 pb-4 flex flex-col">
         <div className="space-y-2">
           <Button 
             variant={isActive('/dashboard') ? 'secondary' : 'ghost'}
@@ -65,72 +71,16 @@ export function AppSidebar() {
           <div className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-4">
             INTEGRAZIONI
           </div>
-          
-          <div className="space-y-1">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-between text-white hover:bg-white/10 h-10"
-            >
-              <div className="flex items-center">
-                <Database className="w-4 h-4 mr-3" />
-                CRM
-              </div>
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-            
-            <div className="ml-7 space-y-1">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-white/80 hover:bg-white/10 h-8 text-sm"
-              >
-                <FileText className="w-3 h-3 mr-2" />
-                HubSpot
-              </Button>
-            </div>
+        </div>
 
-            <Button 
-              variant="ghost" 
-              className="w-full justify-between text-white hover:bg-white/10 h-10"
-            >
-              <div className="flex items-center">
-                <BarChart3 className="w-4 h-4 mr-3" />
-                Data Analysis
-              </div>
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-            
-            <div className="ml-7 space-y-1">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-white/80 hover:bg-white/10 h-8 text-sm"
-              >
-                <FileText className="w-3 h-3 mr-2" />
-                Power BI
-              </Button>
-            </div>
-
-            <Button 
-              variant="ghost" 
-              className="w-full justify-between text-white hover:bg-white/10 h-10"
-            >
-              <div className="flex items-center">
-                <CheckSquare className="w-4 h-4 mr-3" />
-                Task Manager
-              </div>
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-            
-            <div className="ml-7 space-y-1">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-white/80 hover:bg-white/10 h-8 text-sm"
-              >
-                <FileText className="w-3 h-3 mr-2" />
-                Microsoft Planner
-              </Button>
+        {/* Company info sticky at bottom */}
+        {profile?.companyName && (
+          <div className="mt-auto px-4 pb-4">
+            <div className="text-base font-semibold text-white/90 truncate">
+              {profile.companyName}
             </div>
           </div>
-        </div>
+        )}
       </nav>
     </aside>
   )
