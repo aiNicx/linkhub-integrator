@@ -100,6 +100,10 @@ export default defineSchema({
     nextSyncAt: v.optional(v.number()),
     lastError: v.optional(v.string()),
 
+    // 🆕 SYNC ENGINE SUPPORT
+    lastModifiedCursor: v.optional(v.string()), // Cursor per sync incrementale
+    config: v.optional(v.any()),                 // Provider-specific config
+
     createdAt: v.number(),
     updatedAt: v.number(),
   })

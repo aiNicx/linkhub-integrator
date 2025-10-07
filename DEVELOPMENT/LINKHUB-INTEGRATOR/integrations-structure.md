@@ -91,7 +91,21 @@ Gestisce **esecuzione sincronizzazioni** con scheduling e retry logic.
 
 ## 🗄️ MODELLO DATI
 
-Questa sezione riflette lo schema attuale già implementato in Convex. Le tabelle disponibili sono `integratorProfiles`, `providers`, `integrationInstances`, `fieldMappings`, `syncLogs`.
+### Schema Database Semplificato
+
+**Modifiche apportate:**
+- ✅ Aggiunti solo **2 campi** in `integrationInstances`:
+  - `lastModifiedCursor` (string, opzionale): Per sync incrementale
+  - `config` (any, opzionale): Per provider-specific config
+
+**Tabelle disponibili:**
+1. `integratorProfiles` - Profili utenti collegati a LinkHub
+2. `providers` - Catalogo integrazioni disponibili (HubSpot, PowerBI, etc.)
+3. `integrationInstances` - Istanze configurate dagli utenti
+4. `fieldMappings` - Mappatura campi (1:1 semplice)
+5. `syncLogs` - Log operazioni sincronizzazione
+
+**Filosofia:** Complessità nel codice (adapter), non nel database.
 
 ## 👨‍💻 FLUSSO IMPLEMENTATIVO PER SVILUPPATORI
 

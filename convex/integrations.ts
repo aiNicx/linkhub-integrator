@@ -1,6 +1,57 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+// 🔄 Export sync engine
+export * as sync from "./sync/engine";
+// NOTA: Le funzioni Convex incluse in `api` devono essere esportate direttamente
+// dal modulo. Riesportiamo qui le utility di sync come funzioni first-class,
+// così `api.integrations.*` le espone correttamente.
+
+// === Sync Queries ===
+export const getInstance = query({
+  args: { instanceId: v.id("integrationInstances") },
+  handler: async (ctx, args) => {
+    const instance = await ctx.db.get(args.instanceId);
+    if (!instance) return null;
+    const profile = await ctx.db.get(instance.profileId);
+    return { ...instance, companyId: profile?.companyId };
+  },
+});
+
+export const getProvider = query({
+  args: { providerId: v.id("providers") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.providerId);
+  },
+});
+
+// === Sync Mutations ===
+export const updateCursor = mutation({
+  args: {
+    instanceId: v.id("integrationInstances"),
+    cursor: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.instanceId, {
+      lastModifiedCursor: args.cursor,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const updateLastSync = mutation({
+  args: {
+    instanceId: v.id("integrationInstances"),
+    timestamp: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.instanceId, {
+      lastSyncAt: args.timestamp,
+      updatedAt: args.timestamp,
+    });
+  },
+});
+
 // Ottieni istanze integrazione (configurazioni attive) per un profilo
 export const getProviderConfigs = query({
   args: { profileId: v.id("integratorProfiles") },
