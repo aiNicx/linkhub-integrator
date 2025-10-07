@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { apiReference } from "@/data/apiReference";
+import { apiReference, ApiEndpoint, ApiParameter } from "@/data/apiReference";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { 
@@ -137,7 +137,7 @@ export default function ApiDocsPage() {
                 </div>
 
                 <div className="grid gap-4">
-                  {section.endpoints.map((ep) => (
+                  {section.endpoints.map((ep: ApiEndpoint) => (
                     <Card key={ep.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
@@ -177,26 +177,26 @@ export default function ApiDocsPage() {
                       
                       <CardContent className="space-y-4">
                         {/* Headers */}
-                        {ep.headers && ep.headers.length > 0 && (
+                        {ep.headers && Array.isArray(ep.headers) && ep.headers.length > 0 ? (
                           <CollapsibleSection title="Headers" defaultOpen={showAllSections}>
                             <CodeBlock
                               code={Object.fromEntries(
-                                ep.headers.map((h) => [h.name, String(h.example ?? "")])
+                                (ep.headers as ApiParameter[]).map((h) => [h.name, String(h.example ?? "")])
                               )}
                               language="json"
                             />
                           </CollapsibleSection>
-                        )}
+                        ) : null}
 
                         {/* Request Body */}
-                        {ep.requestBodyExample && (
+                        {ep.requestBodyExample ? (
                           <CollapsibleSection title="Request Body" defaultOpen={showAllSections}>
                             <CodeBlock code={ep.requestBodyExample} language="json" />
                           </CollapsibleSection>
-                        )}
+                        ) : null}
 
                         {/* Responses */}
-                        {ep.responses && ep.responses.length > 0 && (
+                        {ep.responses && ep.responses.length > 0 ? (
                           <CollapsibleSection title="Esempi di Risposta" defaultOpen={showAllSections}>
                             <div className="space-y-4">
                               {ep.responses.map((r) => (
@@ -217,7 +217,7 @@ export default function ApiDocsPage() {
                               ))}
                             </div>
                           </CollapsibleSection>
-                        )}
+                        ) : null}
                       </CardContent>
                     </Card>
                   ))}

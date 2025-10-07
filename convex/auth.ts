@@ -42,16 +42,10 @@ export const ensureProfileExistsAction = action({
       // Chiama API LinkHub per ottenere dati reali dell'utente
       try {
         const linkhubApiUrl = process.env.LINKHUB_API_URL;
-        console.log("LINKHUB_API_URL:", linkhubApiUrl ? "configured" : "NOT CONFIGURED");
         if (!linkhubApiUrl) {
           throw new Error("LINKHUB_API_URL not configured");
         }
 
-        console.log("Chiamando LinkHub API con token:", args.accessToken ? "presente" : "mancante");
-        console.log("Token JWT completo:", args.accessToken);
-        console.log("Token JWT header:", args.accessToken ? JSON.parse(atob(args.accessToken.split('.')[0])) : "N/A");
-        console.log("Token JWT payload:", args.accessToken ? JSON.parse(atob(args.accessToken.split('.')[1])) : "N/A");
-        
         const response = await fetch(`${linkhubApiUrl}/auth/token`, {
           method: 'POST',
           headers: {
@@ -62,29 +56,11 @@ export const ensureProfileExistsAction = action({
           }),
         });
 
-        console.log("LinkHub API response status:", response.status);
-        
-        // Converti headers in oggetto per logging
-        const headersObj: Record<string, string> = {};
-        response.headers.forEach((value, key) => {
-          headersObj[key] = value;
-        });
-        console.log("LinkHub API response headers:", headersObj);
-
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("LinkHub API error response:", errorText);
-          console.error("LinkHub API full error details:", {
-            status: response.status,
-            statusText: response.statusText,
-            headers: headersObj,
-            body: errorText
-          });
-          throw new Error(`LinkHub API error: ${response.status} - ${errorText}`);
+          throw new Error(`LinkHub API error: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("LinkHub API response data:", JSON.stringify(data, null, 2));
 
         // Verifica che l'utente abbia una company integrator abilitata
         if (!data.integratorCompany || !data.integratorCompany.integratorEnabled) {
@@ -104,16 +80,8 @@ export const ensureProfileExistsAction = action({
         });
       } catch (error) {
         console.error("Errore chiamata API LinkHub:", error);
-        // Fallback: crea profilo con dati mock se l'API non è disponibile
-        return await ctx.runMutation(api.auth.createProfile, {
-          auth0UserId: args.auth0UserId,
-          companyId: "default-company",
-          companySlug: "default-company",
-          companyName: "Default Company",
-          lastLoginAt: now,
-          createdAt: now,
-          updatedAt: now,
-        });
+        // NO FALLBACK: se l'API non risponde o non ha dati validi, l'utente non ha accesso
+        throw new Error("User not authorized as integrator");
       }
     }
   },

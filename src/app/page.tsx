@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { SignInButtonClient } from "./SignInButtonClient";
 
 export default async function Home() {
   const session = await auth();
@@ -52,12 +53,7 @@ export default async function Home() {
         </div>
 
         <div className="pt-4">
-          <a
-            href="/api/auth/signin"
-            className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-8 py-2 font-medium transition-colors"
-          >
-            Accedi con Auth0
-          </a>
+          <SignInButtonClient />
         </div>
 
         <p className="text-xs text-muted-foreground">

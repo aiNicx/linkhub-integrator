@@ -51,18 +51,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async signIn({ user, account, profile }) {
       try {
-        // Consenti solo login con Auth0 e solo per utenti già abilitati come Integrator
+        // Consenti solo login con Auth0 e verifica se l'utente è autorizzato come Integrator
         if (account?.provider === "auth0") {
           const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
           const auth0UserId = (profile?.sub || user.id) as string
+          const userEmail = user.email ?? ""
+          const userName = user.name || user.email || ""
+          const accessToken = account.access_token ?? ""
 
           try {
+            // Prima verifica se esiste già un profilo
             const existing = await convex.query(api.auth.getProfileByAuth0UserId, {
               auth0UserId,
             })
 
-            if (!existing) {
-              // Nessun profilo Integrator: neghiamo l'accesso (no signup, no autocreazione)
+            if (existing) {
+              // Se esiste già, aggiorna solo l'ultimo accesso
+              await convex.mutation(api.auth.updateLastLogin, {
+                profileId: existing._id,
+                lastLoginAt: Date.now(),
+              })
+              return true
+            }
+
+            // Se non esiste, prova a crearlo chiamando l'API di LinkHub main
+            try {
+              await convex.action(api.auth.ensureProfileExistsAction, {
+                auth0UserId,
+                userEmail,
+                userName,
+                accessToken,
+              })
+              // Se siamo arrivati qui, il profilo è stato creato con successo
+              return true
+            } catch (error) {
+              // Se la creazione del profilo fallisce (utente non autorizzato)
+              console.error("Errore creazione profilo Integrator:", error)
               return false
             }
           } catch (e) {
@@ -70,8 +94,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             console.error("Errore verifica profilo Integrator:", e)
             return false
           }
-
-          return true
         }
 
         return false
